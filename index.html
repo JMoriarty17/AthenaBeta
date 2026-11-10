@@ -1,0 +1,15 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#12252f"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="assets/icon-180.png"><link rel="icon" href="assets/icon-192.png"><link rel="stylesheet" href="css/style.css"><title>ATHENA</title></head><body data-page="home"><main>
+<img class="hero" src="assets/hero.webp" alt="ATHENA, selamat datang">
+<form action="tabel.html"><input name="q" type="search" placeholder="Cari tabel statistik" aria-label="Cari tabel"></form>
+<p id="st" class="mu" style="text-align:center"></p>
+<div class="menu">
+<a href="tabel.html"><span><b>Daftar Tabel</b><small>Cari tabel dari semua publikasi</small></span></a>
+<a href="backup.html"><span><b>Backup Publikasi</b><small>Akses cadangan saat website down</small></span></a>
+<a class="off" aria-disabled="true"><span><b>Indikator Strategis</b><small>Segera hadir</small></span></a>
+<a class="off" aria-disabled="true"><span><b>Panduan</b><small>Segera hadir</small></span></a>
+</div>
+<div class="row"><button id="ins" class="btn" hidden>Pasang aplikasi</button></div></main>
+<script src="js/layout.js"></script><script>
+fetch('data/sumber.json').then(r=>r.json()).then(s=>{st.textContent=s.reduce((a,x)=>a+x.jumlah,0).toLocaleString('id-ID')+' tabel dari '+s.length+' publikasi'});
+let ev;addEventListener('beforeinstallprompt',e=>{e.preventDefault();ev=e;ins.hidden=false});ins.onclick=()=>ev.prompt();
+</script></body></html>

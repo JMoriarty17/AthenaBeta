@@ -1,0 +1,23 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#12252f"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="assets/icon-180.png"><link rel="icon" href="assets/icon-192.png"><link rel="stylesheet" href="css/style.css"><title>Daftar Tabel · ATHENA</title></head><body data-page="tabel"><main>
+<h1>Daftar Tabel</h1><input id="q" type="search" placeholder="Cari tabel" aria-label="Cari tabel" autocomplete="off">
+<div class="fl"><select id="s" aria-label="Publikasi"></select><select id="k" aria-label="Kategori"></select><select id="b" aria-label="Bab" disabled></select></div>
+<p id="info" class="mu"></p><div id="list"></div><div class="row"><button id="more" class="btn gh" hidden>Muat lebih banyak</button></div></main>
+<dialog id="dlg"></dialog><script src="js/layout.js"></script><script>
+const $=i=>document.getElementById(i),P=new URLSearchParams(location.search),N=50,
+esc=t=>t.replace(/[&<>"]/g,c=>'&#'+c.charCodeAt(0)+';'),
+norm=t=>t.toLowerCase().replace(/di kabupaten barito selatan/g,' ').replace(/[^a-z0-9\s]/g,' ');
+let T=[],S=[],F=[],n=0;
+const fill=(e,l,o)=>{e.innerHTML='<option value="">'+l+'</option>'+o.map(x=>'<option value="'+esc(String(x[0]))+'">'+esc(x[1])+'</option>').join('')};
+function bab(){const s=$('s').value,l=s===''?[]:[...new Set(T.filter(x=>x.s==s).map(x=>x.b))];fill($('b'),'Semua bab',l.map(x=>[x,x]));$('b').disabled=!l.length}
+function run(){const q=$('q').value,s=$('s').value,k=$('k').value,b=$('b').value,w=norm(q).split(/\s+/).filter(Boolean);
+F=T.filter(x=>(s===''||x.s==s)&&(!k||x.k==k)&&(!b||x.b==b)&&w.every(t=>x.h.includes(t)));n=0;$('list').innerHTML='';more();
+$('info').textContent=F.length.toLocaleString('id-ID')+' tabel';
+const u=new URLSearchParams();for(const[a,v]of[['q',q],['s',s],['k',k],['b',b]])if(v)u.set(a,v);history.replaceState(null,'',u.toString()?'?'+u:location.pathname)}
+function more(){$('list').insertAdjacentHTML('beforeend',F.slice(n,n+N).map(x=>'<button class="it" data-i="'+x._+'"><b>'+esc(x.n)+'</b><span>'+esc(S[x.s].nama)+' · '+esc(x.k)+'</span></button>').join(''));n+=N;$('more').hidden=n>=F.length}
+function show(x){const s=S[x.s],g=x.g;$('dlg').innerHTML='<div class="in"><h2>'+esc(x.n)+'</h2><p class="mu">'+esc(s.nama)+'<br>'+esc(x.k)+' · '+esc(x.b)+'</p>'+(g?'<img alt="" src="https://drive.google.com/thumbnail?id='+g+'&sz=w1600" onerror="this.outerHTML=\'<p class=mu>Gambar tidak dapat dimuat.</p>\'">':'')+'<div class="row">'+(g?'<a class="btn" target="_blank" rel="noopener" href="https://drive.google.com/file/d/'+g+'/view">Buka di Drive</a>':'')+'<a class="btn gh" target="_blank" rel="noopener" href="'+esc(s.link)+'">Buka publikasi</a><button class="btn gh" onclick="dlg.close()">Tutup</button></div></div>';$('dlg').showModal()}
+Promise.all([fetch('data/tabel.json').then(r=>r.json()),fetch('data/sumber.json').then(r=>r.json())]).then(([t,s])=>{T=t;S=s;T.forEach((x,i)=>{x._=i;x.h=norm(x.n+' '+x.k+' '+x.b+' '+S[x.s].nama)});
+fill($('s'),'Semua publikasi',S.map((x,i)=>[i,x.nama]));fill($('k'),'Semua kategori',[...new Set(T.map(x=>x.k))].sort().map(k=>[k,k]));
+$('q').value=P.get('q')||'';$('s').value=P.get('s')||'';$('k').value=P.get('k')||'';bab();$('b').value=P.get('b')||'';run()});
+$('q').oninput=run;$('k').onchange=run;$('b').onchange=run;$('s').onchange=()=>{bab();run()};$('more').onclick=more;
+$('list').onclick=e=>{const b=e.target.closest('.it');if(b)show(T[b.dataset.i])};$('dlg').onclick=e=>{if(e.target==e.currentTarget)e.currentTarget.close()};
+</script></body></html>
