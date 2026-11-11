@@ -1,15 +1,18 @@
-<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#12252f"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="assets/icon-180.png"><link rel="icon" href="assets/icon-192.png"><link rel="stylesheet" href="css/style.css"><title>ATHENA</title></head><body data-page="home"><main>
-<img class="hero" src="assets/hero.webp" alt="ATHENA, selamat datang">
-<form action="tabel.html"><input name="q" type="search" placeholder="Cari tabel statistik" aria-label="Cari tabel"></form>
-<p id="st" class="mu" style="text-align:center"></p>
-<div class="menu">
-<a href="tabel.html"><span><b>Daftar Tabel</b><small>Cari tabel dari semua publikasi</small></span></a>
-<a href="backup.html"><span><b>Backup Publikasi</b><small>Akses cadangan saat website down</small></span></a>
-<a class="off" aria-disabled="true"><span><b>Indikator Strategis</b><small>Segera hadir</small></span></a>
-<a class="off" aria-disabled="true"><span><b>Panduan</b><small>Segera hadir</small></span></a>
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#12252f"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="assets/icon-180.png"><link rel="icon" href="assets/icon-192.png"><script src="js/theme.js"></script><link rel="stylesheet" href="css/style.css"><title>ATHENA</title></head><body data-page="home"><main>
+<section class="top"><img class="hero" src="assets/hero.webp" alt="ATHENA, selamat datang"><p class="mu">Katalog tabel dan indikator statistik<br>BPS Kabupaten Barito Selatan</p></section>
+<form action="tabel.html" class="sf"><input name="q" type="search" placeholder="Cari tabel statistik" aria-label="Cari tabel"></form>
+<div class="st" id="st"></div>
+<div class="tiles">
+<a class="tile t1" href="tabel.html"><b>Daftar Tabel</b><small>Cari tabel dari semua publikasi</small></a>
+<a class="tile t2" href="strategis.html"><b>Indikator Strategis</b><small>Angka kunci dan grafik</small></a>
+<a class="tile t3" href="panduan.html"><b>Panduan</b><small>Cara pakai, jadwal, standar layanan</small></a>
+<a class="tile t4" href="backup.html"><b>Backup Publikasi</b><small>Drive cadangan saat website down</small></a>
 </div>
+<a id="nw" class="note" href="backup.html" hidden></a>
 <div class="row"><button id="ins" class="btn" hidden>Pasang aplikasi</button></div></main>
 <script src="js/layout.js"></script><script>
-fetch('data/sumber.json').then(r=>r.json()).then(s=>{st.textContent=s.reduce((a,x)=>a+x.jumlah,0).toLocaleString('id-ID')+' tabel dari '+s.length+' publikasi'});
+const J=u=>fetch(u).then(r=>r.json()),esc=t=>String(t).replace(/[&<>"]/g,c=>'&#'+c.charCodeAt(0)+';');
+Promise.all([J('data/sumber.json'),J('data/indikator.json')]).then(([s,k])=>{st.innerHTML=[[s.reduce((a,x)=>a+x.jumlah,0),'tabel'],[s.length,'publikasi'],[k.reduce((a,x)=>a+x.grafik.length,0),'grafik']].map(([v,l])=>'<div><b>'+v.toLocaleString('id-ID')+'</b>'+l+'</div>').join('')});
+J('data/update.json').then(u=>{if(u[0]){nw.hidden=false;nw.innerHTML='<b>Rilis terbaru</b><br>'+esc(u[0].judul)+'<br><span class="mu">'+esc(u[0].rilis)+'</span>'}});
 let ev;addEventListener('beforeinstallprompt',e=>{e.preventDefault();ev=e;ins.hidden=false});ins.onclick=()=>ev.prompt();
 </script></body></html>

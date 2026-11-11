@@ -1,0 +1,16 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#12252f"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="assets/icon-180.png"><link rel="icon" href="assets/icon-192.png"><script src="js/theme.js"></script><link rel="stylesheet" href="css/style.css"><title>Indikator Strategis · ATHENA</title></head><body data-page="strategis"><main><h1 id="h"></h1><div id="c"></div></main>
+<script src="js/layout.js"></script><script src="js/vendor/chart.umd.js"></script><script>
+const $=i=>document.getElementById(i),K=new URLSearchParams(location.search).get('k'),css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim(),
+f=v=>v==null?'–':Number(v).toLocaleString('id-ID',{maximumFractionDigits:2}),esc=t=>String(t).replace(/[&<>"]/g,c=>'&#'+c.charCodeAt(0)+';'),PAL=['#2a86c8','#f39a3d','#46b98a','#8e7dd6'];
+fetch('data/indikator.json').then(r=>r.json()).then(D=>{const k=D.find(x=>x.id==K);k?det(k):lst(D)});
+function lst(D){$('h').textContent='Indikator Strategis';$('c').innerHTML='<div class="grid">'+D.map(k=>'<a class="card" href="?k='+k.id+'">'+(k.g?'<img alt="" src="https://drive.google.com/thumbnail?id='+k.g+'&sz=w600" onerror="this.remove()">':'')+'<b>'+esc(k.nama)+'</b><span class="mu">'+k.grafik.length+' grafik</span></a>').join('')+'</div>'}
+function det(k){document.title=k.nama+' · ATHENA';$('h').innerHTML='<a class="mu" href="strategis.html">‹ Indikator Strategis</a><br>'+esc(k.nama);
+const kp=k.sorotan.map(s=>'<div>'+esc(s.n)+'<b>'+f(s.v)+'</b><small>'+esc(s.u)+' · '+s.t+(s.d==null?'':' · '+(s.d>=0?'▲ ':'▼ ')+f(Math.abs(s.d)))+'</small></div>').join('');
+$('c').innerHTML=(kp?'<div class="kv">'+kp+'</div>':'')+k.grafik.map((g,i)=>'<section class="gf"><h2>'+esc(g.j)+'</h2><span class="mu">'+esc(g.u)+(g.c?' · '+esc(g.c):'')+'</span><div class="cv'+(g.t=='pyramid'||g.t=='hbar'?' tall':'')+'"><canvas id="g'+i+'"></canvas></div><details><summary>Lihat tabel</summary><div class="sc"><table class="t"><tr><th></th>'+g.s.map(s=>'<th>'+esc(s.n)+'</th>').join('')+'</tr>'+g.x.map((x,j)=>'<tr><td>'+esc(x)+'</td>'+g.s.map(s=>'<td>'+f(s.d[j])+'</td>').join('')+'</tr>').join('')+'</table></div></details></section>').join('');
+charts(k);addEventListener('themechange',()=>charts(k))}
+function charts(k){Chart.defaults.color=css('--mu');Chart.defaults.borderColor=css('--ln');Chart.defaults.font.family='system-ui,sans-serif';k.grafik.forEach((g,i)=>{const e=$('g'+i);Chart.getChart(e)?.destroy();draw(e,g)})}
+function draw(el,g){const py=g.t=='pyramid',h=g.t=='hbar'||py,ln=g.t=='line';let x=g.x,S=g.s.map(s=>s.d);
+if(py){x=[...x].reverse();S=[S[0].map(v=>-v).reverse(),S[1].slice().reverse()]}
+new Chart(el,{type:ln?'line':'bar',data:{labels:x,datasets:S.map((d,i)=>({label:g.s[i].n,data:d,backgroundColor:PAL[i],borderColor:PAL[i],tension:.3,pointRadius:3,borderRadius:ln?0:3}))},
+options:{indexAxis:h?'y':'x',responsive:true,maintainAspectRatio:false,scales:{x:{stacked:py,ticks:py?{callback:v=>f(Math.abs(v))}:{}},y:{stacked:py}},plugins:{legend:{display:S.length>1},tooltip:{callbacks:{label:c=>c.dataset.label+': '+f(Math.abs(c.raw))}}}}})}
+</script></body></html>
