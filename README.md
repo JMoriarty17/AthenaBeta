@@ -15,7 +15,7 @@ Aplikasi web statis (PWA) untuk katalog tabel dan indikator BPS Kabupaten Barito
 Menjalankan lokal: buka terminal di folder ini, jalankan `python -m http.server`, lalu buka `http://localhost:8000`.
 Deploy: unggah semua isi folder ke repo GitHub, lalu Settings > Pages > Branch `main`, folder `/ (root)`.
 
-Data yang diperbarui langsung dipakai aplikasi saat online. Untuk perubahan halaman, CSS, atau JS, naikkan angka versi `V` di `sw.js` (misalnya `athena-v6`) supaya HP pengguna mengambil file baru.
+Data yang diperbarui langsung dipakai aplikasi saat online. Untuk perubahan halaman, CSS, atau JS, naikkan angka versi `V` di `sw.js` (misalnya `athena-v7`) supaya HP pengguna mengambil file baru.
 
 ## 1. Mengubah data tabel
 
@@ -63,9 +63,7 @@ Tahun tabel Angkatan Kerja dan satuan PPK masih perlu dikonfirmasi (lihat kolom 
 - Tiap file `.md` diawali tanggal pembaruan:
 
 ```
----
-diperbarui: 2026-11-11
----
+<!-- diperbarui: 2026-11-11 -->
 ## Judul bagian
 Paragraf biasa, **tebal**, *miring*, dan [tautan](https://contoh.id).
 
@@ -83,3 +81,10 @@ Paragraf biasa, **tebal**, *miring*, dan [tautan](https://contoh.id).
 ## Tema
 
 Tombol di pojok kanan header berganti antara **Otomatis** (mengikuti HP), **Terang**, dan **Gelap**. Pilihan tersimpan di perangkat.
+
+## Jika halaman tidak muncul di GitHub Pages
+
+1. Tunggu 1-2 menit setelah commit, lalu muat ulang paksa (atau hapus data situs di pengaturan browser, karena aplikasi menyimpan cache).
+2. Buka langsung `https://USERNAME.github.io/REPO/panduan/index.json` dan salah satu file `.md` di browser. Kalau muncul 404, filenya belum terunggah atau salah folder.
+3. Pastikan file kosong bernama `.nojekyll` ada di folder paling atas repo. Tanpa file ini GitHub memproses file `.md` dan mengubahnya menjadi HTML, sehingga file aslinya tidak bisa dibaca aplikasi. Kalau file berawalan titik tidak ikut terunggah, buat lewat Add file > Create new file, beri nama `.nojekyll`.
+4. Nama folder dan file peka huruf besar-kecil (`panduan/`, bukan `Panduan/`).

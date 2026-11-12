@@ -1,6 +1,4 @@
----
-diperbarui: 2026-11-11
----
+<!-- diperbarui: 2026-11-11 -->
 ## Mencari tabel
 Buka **Daftar Tabel**, lalu ketik kata kunci. Persempit hasil dengan filter **publikasi**, **kategori**, dan **bab**.
 
