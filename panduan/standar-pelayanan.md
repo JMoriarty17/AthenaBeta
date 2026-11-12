@@ -1,2 +1,11 @@
 <!-- diperbarui: 2026-11-11 -->
-*Isi standar pelayanan belum ditambahkan.*
+![SP1](img/1.png)
+![SP2](img/2.png)
+![SP3](img/3.png)
+![SP4](img/4.png)
+![SP5](img/5.png)
+![SP6](img/6.png)
+![SP7](img/7.png)
+![SP8](img/8.png)
+![SP9](img/9.png)
+![SP10](img/10.png)
