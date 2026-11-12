@@ -1,12 +1,39 @@
-<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#12252f"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="assets/icon-180.png"><link rel="icon" href="assets/icon-192.png"><script src="js/theme.js"></script><link rel="stylesheet" href="css/style.css"><title>Backup Publikasi · ATHENA</title></head><body data-page="backup"><main>
-<h1>Backup Publikasi</h1>
-<p class="mu lead">Cadangan publikasi BPS Barito Selatan di Google Drive. Pakai saat website atau server down.</p>
-<div class="bk"><a class="btn big" id="dl" href="https://drive.google.com/drive/folders/19JmanEUoENUz_QFs1nANHDmr19Ypt-zL" target="_blank" rel="noopener">Buka Drive Backup</a>
-<button class="lnk" id="cp">Salin link</button>
-<p class="mu">Website normal? <a href="https://barselkab.bps.go.id" target="_blank" rel="noopener">barselkab.bps.go.id</a></p></div>
-<h2 class="lb">Update terakhir</h2><div id="up"></div></main>
-<script src="js/layout.js"></script><script>
-const esc=t=>String(t).replace(/[&<>"]/g,c=>'&#'+c.charCodeAt(0)+';');
-cp.onclick=()=>navigator.clipboard.writeText(dl.href).then(()=>{cp.textContent='Tersalin';setTimeout(()=>cp.textContent='Salin link',1500)});
-fetch('data/update.json').then(r=>r.json()).then(a=>{up.innerHTML=a.map(x=>'<div class="u"><b>'+esc(x.judul)+'</b><span class="mu">'+esc(x.rilis)+'</span></div>').join('')});
-</script></body></html>
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <meta name="theme-color" content="#12252f">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="assets/icon-180.png">
+    <link rel="icon" href="assets/icon-192.png">
+    <script src="js/theme.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <title>Backup Publikasi · ATHENA</title>
+</head>
+
+<body data-page="backup">
+    <main>
+        <h1>Backup Publikasi</h1>
+        <p class="mu lead">Cadangan publikasi BPS Barito Selatan di Google Drive. Pakai saat website atau server down.
+        </p>
+        <div class="bk"><a class="btn big" id="dl"
+                href="https://drive.google.com/drive/folders/19JmanEUoENUz_QFs1nANHDmr19Ypt-zL" target="_blank"
+                rel="noopener">Buka Drive Backup</a>
+            <button class="lnk" id="cp">Salin link</button>
+            <p class="mu">Website normal? <a href="https://barselkab.bps.go.id" target="_blank"
+                    rel="noopener">barselkab.bps.go.id</a></p>
+        </div>
+        <h2 class="lb">Update terakhir</h2>
+        <div id="up"></div>
+    </main>
+    <script src="js/layout.js"></script>
+    <script>
+        const esc = t => String(t).replace(/[&<>"]/g, c => '&#' + c.charCodeAt(0) + ';');
+        cp.onclick = () => navigator.clipboard.writeText(dl.href).then(() => { cp.textContent = 'Tersalin'; setTimeout(() => cp.textContent = 'Salin link', 1500) });
+        fetch('data/update.json').then(r => r.json()).then(a => { up.innerHTML = a.map(x => '<div class="u"><b>' + esc(x.judul) + '</b><span class="mu">' + esc(x.rilis) + '</span></div>').join('') });
+    </script>
+</body>
+
+</html>
