@@ -1,38 +1,85 @@
-<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#12252f"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="assets/icon-180.png"><link rel="icon" href="assets/icon-192.png"><script src="js/theme.js"></script><link rel="stylesheet" href="css/style.css"><meta name="robots" content="noindex"><title>Admin · ATHENA</title></head><body data-page="admin"><main>
-<section id="lg"><h1>Admin</h1><p class="mu">Masukkan password untuk mengelola data.</p><input id="pw" type="password" placeholder="Password" autocomplete="current-password"><div class="row"><button class="btn" id="go">Masuk</button></div><p id="er" class="mu"></p></section>
-<section id="ad" hidden><h1>Perbarui data</h1>
-<label class="drop" id="dz"><b>Pilih atau seret file Excel</b><br><span class="mu">Kolom: Nama, Sumber, Kategori, Bab, Gambar, Link</span><input id="fi" type="file" accept=".xlsx,.xls" hidden></label>
-<p id="ms" class="mu"></p>
-<div id="rp" hidden><div class="kv" id="kv"></div><ul id="is" class="mu"></ul><div class="row"><button class="btn" id="d1">Unduh tabel.json</button><button class="btn" id="d2">Unduh sumber.json</button></div><p class="mu">Ganti kedua file di folder data/ pada repo, lalu commit dan push. Data baru langsung dipakai aplikasi.</p></div>
-<h2>Update terakhir (Backup Publikasi)</h2><div id="ul"></div>
-<input id="uj" placeholder="Judul publikasi"><div style="height:8px"></div><input id="ur" placeholder="Tanggal rilis, mis. 11 Agustus 2026">
-<div class="row"><button class="btn gh" id="add">Tambah</button><button class="btn" id="d3">Unduh update.json</button></div>
-<div class="row" style="margin-top:28px"><button class="btn gh" id="out">Keluar</button></div></section></main>
-<script src="js/layout.js"></script><script>
-const HASH='ce7a63ac1fb6fe498999e3c8b24790d2fd5893605b580e5c76b090059bc289bb',$=i=>document.getElementById(i),esc=t=>String(t).replace(/[&<>"]/g,c=>'&#'+c.charCodeAt(0)+';');
-const sha=async t=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)))].map(b=>b.toString(16).padStart(2,'0')).join('');
-const gate=ok=>{$('lg').hidden=ok;$('ad').hidden=!ok};gate(sessionStorage.a=='1');
-$('go').onclick=async()=>{if(await sha($('pw').value)==HASH){sessionStorage.a='1';$('pw').value='';gate(true)}else $('er').textContent='Password salah.'};
-$('pw').onkeydown=e=>{if(e.key=='Enter')$('go').click()};$('out').onclick=()=>{sessionStorage.clear();gate(false)};
-const msg=(t,e)=>{$('ms').textContent=t;$('ms').style.color=e?'#d33':''},dl=(n,o)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(o)],{type:'application/json'}));a.download=n;a.click()};
-const bab=b=>{const m=b.trim().match(/^([IVX]+)\.?\s*(.*)$/);return m?(m[2]?m[1]+'. '+m[2]:m[1]):b.trim()};
-let R=null;
-async function proc(f){if(!f)return;msg('Memproses…');$('rp').hidden=true;
-try{if(!window.XLSX)await new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.onload=ok;s.onerror=()=>no(Error('Library Excel gagal dimuat. Periksa koneksi internet.'));document.head.append(s)});
-const wb=XLSX.read(await f.arrayBuffer()),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
-const miss=['Nama','Sumber','Kategori','Bab','Gambar','Link'].filter(c=>!(rows[0]&&c in rows[0]));if(miss.length)return msg('Kolom tidak ditemukan: '+miss.join(', '),1);
-const sm=new Map(),g=(r,k)=>String(r[k]??'');rows.forEach(r=>{const s=g(r,'Sumber');if(!sm.has(s))sm.set(s,{nama:s,link:g(r,'Link'),jumlah:0});sm.get(s).jumlah++});
-const S=[...sm.values()].sort((a,b)=>b.jumlah-a.jumlah),ix=new Map(S.map((x,i)=>[x.nama,i])),seen={},T=[],bad=[];
-for(const[i,r]of rows.entries()){for(const k of['Nama','Sumber','Kategori','Bab','Link'])if(!g(r,k).trim()){bad.push('Baris '+(i+2)+': kolom '+k+' kosong');break}
-const h=(await sha(g(r,'Sumber')+'|'+g(r,'Bab')+'|'+g(r,'Nama'))).slice(0,8);seen[h]=(seen[h]||0)+1;const m=g(r,'Gambar').match(/\/d\/([\w-]+)/);
-T.push({id:h+(seen[h]>1?'-'+seen[h]:''),n:g(r,'Nama').trim(),s:ix.get(g(r,'Sumber')),k:g(r,'Kategori'),b:bab(g(r,'Bab')),g:m?m[1]:''})}
-R={T,S};const kb=Object.values(seen).reduce((a,v)=>a+v-1,0);
-$('kv').innerHTML=[['Tabel',T.length],['Publikasi',S.length],['Bergambar',T.filter(x=>x.g).length],['Judul kembar',kb]].map(([a,b])=>'<div>'+a+'<b>'+b.toLocaleString('id-ID')+'</b></div>').join('');
-$('is').innerHTML=bad.slice(0,10).map(x=>'<li>'+esc(x)+'</li>').join('')+(bad.length>10?'<li>…dan '+(bad.length-10)+' lainnya</li>':'');
-$('rp').hidden=false;msg(bad.length?bad.length+' baris bermasalah. Periksa dulu sebelum dipakai.':'File valid.',bad.length)}catch(e){msg(e.message,1)}}
-$('fi').onchange=()=>proc($('fi').files[0]);const dz=$('dz');dz.ondragover=e=>{e.preventDefault();dz.classList.add('on')};dz.ondragleave=()=>dz.classList.remove('on');dz.ondrop=e=>{e.preventDefault();dz.classList.remove('on');proc(e.dataTransfer.files[0])};
-$('d1').onclick=()=>dl('tabel.json',R.T);$('d2').onclick=()=>dl('sumber.json',R.S);
-let U=[];const ru=()=>{$('ul').innerHTML=U.map((x,i)=>'<div class="u"><span><b>'+esc(x.judul)+'</b><br><span class="mu">Rilis '+esc(x.rilis)+'</span></span><button class="btn gh" data-d="'+i+'">Hapus</button></div>').join('')};
-fetch('data/update.json').then(r=>r.json()).then(a=>{U=a;ru()});$('ul').onclick=e=>{const d=e.target.dataset.d;if(d!=null){U.splice(d,1);ru()}};
-$('add').onclick=()=>{if($('uj').value.trim()&&$('ur').value.trim()){U.unshift({judul:$('uj').value.trim(),rilis:$('ur').value.trim()});$('uj').value=$('ur').value='';ru()}};$('d3').onclick=()=>dl('update.json',U);
-</script></body></html>
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <meta name="theme-color" content="#12252f">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="assets/icon-180.png">
+    <link rel="icon" href="assets/icon-192.png">
+    <script src="js/theme.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <meta name="robots" content="noindex">
+    <title>Admin · ATHENA</title>
+</head>
+
+<body data-page="admin">
+    <main>
+        <section id="lg">
+            <h1>Admin</h1>
+            <p class="mu">Masukkan password untuk mengelola data.</p><input id="pw" type="password"
+                placeholder="Password" autocomplete="current-password">
+            <div class="row"><button class="btn" id="go">Masuk</button></div>
+            <p id="er" class="mu"></p>
+        </section>
+        <section id="ad" hidden>
+            <h1>Perbarui data</h1>
+            <label class="drop" id="dz"><b>Pilih atau seret file Excel</b><br><span class="mu">Kolom: Nama, Sumber,
+                    Kategori, Bab, Gambar, Link</span><input id="fi" type="file" accept=".xlsx,.xls" hidden></label>
+            <p id="ms" class="mu"></p>
+            <div id="rp" hidden>
+                <div class="kv" id="kv"></div>
+                <ul id="is" class="mu"></ul>
+                <div class="row"><button class="btn" id="d1">Unduh tabel.json</button><button class="btn" id="d2">Unduh
+                        sumber.json</button></div>
+                <p class="mu">Ganti kedua file di folder data/ pada repo, lalu commit dan push. Data baru langsung
+                    dipakai aplikasi.</p>
+            </div>
+            <h2>Update terakhir (Backup Publikasi)</h2>
+            <div id="ul"></div>
+            <input id="uj" placeholder="Judul publikasi">
+            <div style="height:8px"></div><input id="ur" placeholder="Tanggal rilis, mis. 11 Agustus 2026">
+            <div class="row"><button class="btn gh" id="add">Tambah</button><button class="btn" id="d3">Unduh
+                    update.json</button></div>
+            <div class="row" style="margin-top:28px"><button class="btn gh" id="out">Keluar</button></div>
+        </section>
+    </main>
+    <script src="js/layout.js"></script>
+    <script>
+        const HASH = 'ce7a63ac1fb6fe498999e3c8b24790d2fd5893605b580e5c76b090059bc289bb', $ = i => document.getElementById(i), esc = t => String(t).replace(/[&<>"]/g, c => '&#' + c.charCodeAt(0) + ';');
+        const sha = async t => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)))].map(b => b.toString(16).padStart(2, '0')).join('');
+        const gate = ok => { $('lg').hidden = ok; $('ad').hidden = !ok }; gate(sessionStorage.a == '1');
+        $('go').onclick = async () => { if (await sha($('pw').value) == HASH) { sessionStorage.a = '1'; $('pw').value = ''; gate(true) } else $('er').textContent = 'Password salah.' };
+        $('pw').onkeydown = e => { if (e.key == 'Enter') $('go').click() }; $('out').onclick = () => { sessionStorage.clear(); gate(false) };
+        const msg = (t, e) => { $('ms').textContent = t; $('ms').style.color = e ? '#d33' : '' }, dl = (n, o) => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(o)], { type: 'application/json' })); a.download = n; a.click() };
+        const bab = b => { const m = b.trim().match(/^([IVX]+)\.?\s*(.*)$/); return m ? (m[2] ? m[1] + '. ' + m[2] : m[1]) : b.trim() };
+        let R = null;
+        async function proc(f) {
+            if (!f) return; msg('Memproses…'); $('rp').hidden = true;
+            try {
+                if (!window.XLSX) await new Promise((ok, no) => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'; s.onload = ok; s.onerror = () => no(Error('Library Excel gagal dimuat. Periksa koneksi internet.')); document.head.append(s) });
+                const wb = XLSX.read(await f.arrayBuffer()), rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
+                const miss = ['Nama', 'Sumber', 'Kategori', 'Bab', 'Gambar', 'Link'].filter(c => !(rows[0] && c in rows[0])); if (miss.length) return msg('Kolom tidak ditemukan: ' + miss.join(', '), 1);
+                const sm = new Map(), g = (r, k) => String(r[k] ?? ''); rows.forEach(r => { const s = g(r, 'Sumber'); if (!sm.has(s)) sm.set(s, { nama: s, link: g(r, 'Link'), jumlah: 0 }); sm.get(s).jumlah++ });
+                const S = [...sm.values()].sort((a, b) => b.jumlah - a.jumlah), ix = new Map(S.map((x, i) => [x.nama, i])), seen = {}, T = [], bad = [];
+                for (const [i, r] of rows.entries()) {
+                    for (const k of ['Nama', 'Sumber', 'Kategori', 'Bab', 'Link']) if (!g(r, k).trim()) { bad.push('Baris ' + (i + 2) + ': kolom ' + k + ' kosong'); break }
+                    const h = (await sha(g(r, 'Sumber') + '|' + g(r, 'Bab') + '|' + g(r, 'Nama'))).slice(0, 8); seen[h] = (seen[h] || 0) + 1; const m = g(r, 'Gambar').match(/\/d\/([\w-]+)/);
+                    T.push({ id: h + (seen[h] > 1 ? '-' + seen[h] : ''), n: g(r, 'Nama').trim(), s: ix.get(g(r, 'Sumber')), k: g(r, 'Kategori'), b: bab(g(r, 'Bab')), g: m ? m[1] : '' })
+                }
+                R = { T, S }; const kb = Object.values(seen).reduce((a, v) => a + v - 1, 0);
+                $('kv').innerHTML = [['Tabel', T.length], ['Publikasi', S.length], ['Bergambar', T.filter(x => x.g).length], ['Judul kembar', kb]].map(([a, b]) => '<div>' + a + '<b>' + b.toLocaleString('id-ID') + '</b></div>').join('');
+                $('is').innerHTML = bad.slice(0, 10).map(x => '<li>' + esc(x) + '</li>').join('') + (bad.length > 10 ? '<li>…dan ' + (bad.length - 10) + ' lainnya</li>' : '');
+                $('rp').hidden = false; msg(bad.length ? bad.length + ' baris bermasalah. Periksa dulu sebelum dipakai.' : 'File valid.', bad.length)
+            } catch (e) { msg(e.message, 1) }
+        }
+        $('fi').onchange = () => proc($('fi').files[0]); const dz = $('dz'); dz.ondragover = e => { e.preventDefault(); dz.classList.add('on') }; dz.ondragleave = () => dz.classList.remove('on'); dz.ondrop = e => { e.preventDefault(); dz.classList.remove('on'); proc(e.dataTransfer.files[0]) };
+        $('d1').onclick = () => dl('tabel.json', R.T); $('d2').onclick = () => dl('sumber.json', R.S);
+        let U = []; const ru = () => { $('ul').innerHTML = U.map((x, i) => '<div class="u"><span><b>' + esc(x.judul) + '</b><br><span class="mu">Rilis ' + esc(x.rilis) + '</span></span><button class="btn gh" data-d="' + i + '">Hapus</button></div>').join('') };
+        fetch('data/update.json').then(r => r.json()).then(a => { U = a; ru() }); $('ul').onclick = e => { const d = e.target.dataset.d; if (d != null) { U.splice(d, 1); ru() } };
+        $('add').onclick = () => { if ($('uj').value.trim() && $('ur').value.trim()) { U.unshift({ judul: $('uj').value.trim(), rilis: $('ur').value.trim() }); $('uj').value = $('ur').value = ''; ru() } }; $('d3').onclick = () => dl('update.json', U);
+    </script>
+</body>
+
+</html>
